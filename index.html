@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ODE Solver - Ordinary Differential Equations</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="stylesheet" href="/src/styles/main.css">
+</head>
+<body>
+    <div id="app">
+        <header class="app-header">
+            <h1>🔬 ODE Solver</h1>
+            <p>Solve First-Order Ordinary Differential Equations</p>
+        </header>
+        
+        <main class="main-content">
+            <!-- System Type Toggle -->
+            <section class="system-toggle-section">
+                <div class="card">
+                    <div class="toggle-container">
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="coupled-mode-toggle">
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <div class="toggle-labels">
+                            <span class="toggle-label" data-mode="single">📊 Single ODE</span>
+                            <span class="toggle-label active" data-mode="coupled">🔗 Coupled System</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Input Section -->
+            <section class="input-section">
+                <div class="card">
+                    <!-- Single ODE Mode -->
+                    <div id="single-ode-mode" class="mode-panel">
+                        <h2>📝 Single Differential Equation</h2>
+                        <form id="single-ode-form">
+                            <div class="form-group">
+                                <label for="single-equation">Equation (dy/dt = f(t,y)):</label>
+                                <input 
+                                    type="text" 
+                                    id="single-equation" 
+                                    placeholder="e.g., t + y, sin(t) * y, t^2 - y"
+                                    value="t + y"
+                                    required
+                                >
+                                <small>Enter the right-hand side of dy/dt = f(t,y)</small>
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="single-t0">Initial t₀:</label>
+                                    <input type="number" id="single-t0" value="0" step="0.1" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="single-y0">Initial y₀:</label>
+                                    <input type="number" id="single-y0" value="1" step="0.1" required>
+                                </div>
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="single-tend">End point (t_end):</label>
+                                    <input type="number" id="single-tend" value="2" step="0.1" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="single-step">Step size (h):</label>
+                                    <input type="number" id="single-step" value="0.1" step="0.01" min="0.001" max="1" required>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="single-method">Numerical Method:</label>
+                                <select id="single-method">
+                                    <option value="euler">Euler's Method</option>
+                                    <option value="rk4" selected>Runge-Kutta 4th Order</option>
+                                    <option value="heun">Heun's Method</option>
+                                </select>
+                            </div>
+                            
+                            <button type="submit" class="solve-btn">🚀 Solve Single ODE</button>
+                        </form>
+                    </div>
+
+                    <!-- Coupled ODE Mode -->
+                    <div id="coupled-ode-mode" class="mode-panel hidden">
+                        <h2>🔗 Coupled System of Differential Equations</h2>
+                        
+                        <div class="equations-section">
+                            <div class="equations-header">
+                                <h3>System Equations</h3>
+                                <button type="button" id="add-equation-btn" class="add-equation-btn">
+                                    ➕ Add Equation
+                                </button>
+                            </div>
+                            
+                            <div id="equations-container" class="equations-container">
+                                <!-- Equations will be added dynamically -->
+                            </div>
+                        </div>
+                        
+                        <form id="coupled-ode-form">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="coupled-t0">Initial t₀:</label>
+                                    <input type="number" id="coupled-t0" value="0" step="0.1" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="coupled-tend">End point (t_end):</label>
+                                    <input type="number" id="coupled-tend" value="10" step="0.1" required>
+                                </div>
+                            </div>
+                            
+                            <div id="initial-conditions-container" class="initial-conditions">
+                                <h4>Initial Conditions</h4>
+                                <div id="initial-conditions-list">
+                                    <!-- Initial conditions will be added dynamically -->
+                                </div>
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="coupled-step">Step size (h):</label>
+                                    <input type="number" id="coupled-step" value="0.1" step="0.01" min="0.001" max="1" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="coupled-method">Numerical Method:</label>
+                                    <select id="coupled-method">
+                                        <option value="euler">Euler's Method</option>
+                                        <option value="rk4" selected>Runge-Kutta 4th Order</option>
+                                        <option value="heun">Heun's Method</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <button type="submit" class="solve-btn">🚀 Solve Coupled System</button>
+                        </form>
+                    </div>
+            <!-- Examples Section -->
+            <section class="examples-section">
+                <div class="card">
+                    <h2>💡 Example Systems</h2>
+                    
+                    <!-- Single ODE Examples -->
+                    <div id="single-examples" class="examples-group">
+                        <h3>📊 Single ODE Examples</h3>
+                        <div class="examples-grid">
+                            <button class="example-btn" data-type="single" data-equation="t + y" data-t0="0" data-y0="1" data-tend="2">
+                                <strong>dy/dt = t + y</strong>
+                                <small>Linear ODE</small>
+                            </button>
+                            <button class="example-btn" data-type="single" data-equation="sin(t) * y" data-t0="0" data-y0="1" data-tend="3.14">
+                                <strong>dy/dt = sin(t) × y</strong>
+                                <small>Trigonometric</small>
+                            </button>
+                            <button class="example-btn" data-type="single" data-equation="y * (1 - y)" data-t0="0" data-y0="0.1" data-tend="5">
+                                <strong>dy/dt = y(1-y)</strong>
+                                <small>Logistic Growth</small>
+                            </button>
+                            <button class="example-btn" data-type="single" data-equation="-y + cos(t)" data-t0="0" data-y0="1" data-tend="6.28">
+                                <strong>dy/dt = -y + cos(t)</strong>
+                                <small>Forced Oscillation</small>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Coupled System Examples -->
+                    <div id="coupled-examples" class="examples-group hidden">
+                        <h3>🔗 Coupled System Examples</h3>
+                        <div class="examples-grid">
+                            <button class="example-btn" data-type="coupled" 
+                                    data-equations='["y2", "-y1"]' 
+                                    data-t0="0" data-y0='[1, 0]' data-tend="6.28"
+                                    data-description="Harmonic Oscillator">
+                                <strong>Harmonic Oscillator</strong>
+                                <small>dy₁/dt = y₂, dy₂/dt = -y₁</small>
+                            </button>
+                            <button class="example-btn" data-type="coupled" 
+                                    data-equations='["y2", "-sin(y1)"]' 
+                                    data-t0="0" data-y0='[0.785, 0]' data-tend="10"
+                                    data-description="Simple Pendulum">
+                                <strong>Simple Pendulum</strong>
+                                <small>dy₁/dt = y₂, dy₂/dt = -sin(y₁)</small>
+                            </button>
+                            <button class="example-btn" data-type="coupled" 
+                                    data-equations='["0.1 * y1 * (1 - y2/50)", "-0.05 * y2 * (1 - y1/25)"]' 
+                                    data-t0="0" data-y0='[10, 5]' data-tend="50"
+                                    data-description="Predator-Prey">
+                                <strong>Predator-Prey Model</strong>
+                                <small>Lotka-Volterra equations</small>
+                            </button>
+                            <button class="example-btn" data-type="coupled" 
+                                    data-equations='["10 * (y2 - y1)", "y1 * (28 - y3) - y2", "y1 * y2 - (8/3) * y3"]' 
+                                    data-t0="0" data-y0='[1, 1, 1]' data-tend="25"
+                                    data-description="Lorenz System">
+                                <strong>Lorenz System</strong>
+                                <small>Chaotic attractor (3D)</small>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Results Section -->
+            <section class="results-section">
+                <div class="card">
+                    <h2>📊 Solution</h2>
+                    <div id="loading" class="loading hidden">
+                        <div class="spinner"></div>
+                        <p>Solving differential equation...</p>
+                    </div>
+                    
+                    <div id="error-message" class="error-message hidden"></div>
+                    
+                    <div id="chart-container" class="chart-container hidden">
+                        <canvas id="solution-chart"></canvas>
+                    </div>
+                    
+                    <div id="solution-details" class="solution-details hidden">
+                        <h3>📈 Solution Summary</h3>
+                        <div class="stats-grid">
+                            <div class="stat">
+                                <span class="stat-label">Points Computed:</span>
+                                <span class="stat-value" id="points-count">-</span>
+                            </div>
+                            <div class="stat">
+                                <span class="stat-label">Final Value:</span>
+                                <span class="stat-value" id="final-value">-</span>
+                            </div>
+                            <div class="stat">
+                                <span class="stat-label">Method Used:</span>
+                                <span class="stat-value" id="method-used">-</span>
+                            </div>
+                            <div class="stat">
+                                <span class="stat-label">Computation Time:</span>
+                                <span class="stat-value" id="computation-time">-</span>
+                            </div>
+                        </div>
+                        
+                        <details class="data-table-details">
+                            <summary>📋 View Data Table</summary>
+                            <div class="table-container">
+                                <table id="solution-table">
+                                    <thead>
+                                        <tr>
+                                            <th>t</th>
+                                            <th>y</th>
+                                            <th>dy/dt</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="solution-table-body">
+                                    </tbody>
+                                </table>
+                            </div>
+                        </details>
+                    </div>
+                </div>
+            </section>
+        </main>
+        
+        <footer class="app-footer">
+            <p>Built with ❤️ using modern TypeScript, Vite, and Chart.js</p>
+            <p><a href="/docs/">📚 View Documentation</a> | <a href="https://github.com/your-username/odetest">🔗 GitHub</a></p>
+        </footer>
+    </div>
+    
+    <script type="module" src="/src/web/main.ts"></script>
+</body>
+</html>

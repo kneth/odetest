@@ -1,0 +1,20 @@
+{
+  "entryPoints": ["./src/index.ts"],
+  "out": "./docs/api",
+  "theme": "default",
+  "name": "OdeTest API Documentation",
+  "readme": "./README.md",
+  "exclude": ["**/node_modules/**", "**/*.test.ts", "**/*.spec.ts"],
+  "excludePrivate": true,
+  "excludeProtected": false,
+  "excludeExternals": true,
+  "includeVersion": true,
+  "sort": ["source-order"],
+  "validation": {
+    "invalidLink": true,
+    "notExported": true
+  },
+  "categorizeByGroup": true,
+  "defaultCategory": "Other",
+  "categoryOrder": ["Core", "Utilities", "Types", "Other"]
+}
